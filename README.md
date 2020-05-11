@@ -15,5 +15,4 @@ A simple WebApp that will utilize Browser's font rendering capabilities and cust
 3. artifacts generator. which makes it more credible
 
 ## how I intend to use it.
-4000 words for 5 marks is simply unacceptable and that for survey portion. I have absolutely no interest on it. So i am copying and pasting. 
-
+4000 words for 5 marks is simply unacceptable and that for survey portion. I have absolutely no interest on it. So i am copying and pasting articles. After formatting, i will print it and scan using camscanner, which will produce artifacts by itself. and sending it.
