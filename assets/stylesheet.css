@@ -1,0 +1,77 @@
+/* app specific css */
+.card-form > *{
+    display: block;
+}
+
+#view-generated-content{
+    width:7in;
+}
+
+
+
+
+/* page specification for printing */
+@page{
+    size: 7in 9.25in;
+}
+
+
+
+
+/* Used Font Squirrel to convert ttf into woff and woff2  */
+
+@font-face {
+    font-family: 'ash5';
+    src: url('./fonts/ashishfont2-irregularregular-webfont.woff2') format('woff2'),
+         url('./fonts/ashishfont2-irregularregular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+
+
+@font-face {
+    font-family: 'ash4';
+    src: url('./fonts/ashishfont3-regular-webfont.woff2') format('woff2'),
+         url('./fonts/ashishfont3-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+
+
+@font-face {
+    font-family: 'ash3';
+    src: url('./fonts/ashishfont4-regular-webfont.woff2') format('woff2'),
+         url('./fonts/ashishfont4-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+
+@font-face {
+    font-family: 'ash2';
+    src: url('myfont-regular-webfont.woff2') format('woff2'),
+         url('myfont-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'ash1';
+    src: url('./fonts/ashishfonta-regular-webfont.woff2') format('woff2'),
+         url('./fonts/ashishfonta-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+
