@@ -57,8 +57,8 @@
 
 @font-face {
     font-family: 'ash2';
-    src: url('myfont-regular-webfont.woff2') format('woff2'),
-         url('myfont-regular-webfont.woff') format('woff');
+    src: url('./fonts/myfont-regular-webfont.woff2') format('woff2'),
+         url('./fonts/myfont-regular-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 

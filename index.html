@@ -7,23 +7,30 @@
     <link rel="stylesheet" href="./assets/stylesheet.css">
     <script src="./scripts/vue.js"></script>
     <script src="./scripts/main.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+
 </head>
+
 <body>
-    
+        <script type="text/x-template" id="formPart">  
+            <form class="card-form" @submit.prevent="generate">
+                <label for="inputText">Paste here</label>
+                <textarea class="inputPart" v-model="content"></textarea>
+                Remember font size
+                <label for="slider">How much of केरमेट do you want? </label>
+                <input type="range"  v-model="kermetFactor" min="1" max="100"  id="kermetRange">
+                <label for="slider">Do you want your text to fly? </label>
+                <input type="range"  v-model="textflyFactor" min="0" max="100"  id="kermetRange">
+                
+                <input type="submit" value="Generate">
+            </form>
+    </script>    
     <div id="app">
-        
-        <form class="card-form">
-            <label for="inputText">Paste here</label>
-            <textarea class="inputPart"></textarea>
-            <label for="slider">How much of केरमेट do you want? </label>
-            <input type="range"  min="1" max="100" value="20" id="kermetRange">
-            <label for="slider">Do you want your text to fly? </label>
-            <input type="range"  min="1" max="100" value="0" id="kermetRange">
-            <input type="submit" value="Generate">
-        </div>
-        
-        <generator-form></generator-form>
+
+        <generator-form @submitted-elements="prepareContent" v-if="!removeForm"></generator-form>
+        <input type="button" value="Make it ready for print" v-if="!removeForm" @click="removeForm=true">
+        <div v-html="renderables"></div>
     </div>
-    
+
 </body>
 </html>
