@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text To Handwriting</title>
+    <title>Text To Handwriting 0.0.1 : Currently narcissistic. Don't you worry , later versions will support your font too.</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="./assets/stylesheet.css">
     <script src="./scripts/vue.js"></script>
     <script src="./scripts/main.js" defer></script>
@@ -12,36 +14,76 @@
 </head>
 
 <body>
-        <script type="text/x-template" id="formPart">  
-            <form class="card-form" @submit.prevent="generate">
-                <label for="inputText">Paste here</label>
-                <textarea class="inputPart" v-model="content" style="width:7in;height:4in"></textarea>
-                <label for="font size Selection">select required font size [note: in pixels]</label>
-                <input type="number"  min="20" v-model="fontSize">
-                <label for="show Indentation">show indentation</label>
-                <input type="radio" name="indent" value="violet" v-model="showIndent" style="display:inline-block" > Yes
-                <input type="radio" name="indent" value="white" v-model="showIndent" style="display:inline-block" checked> No
-                <label for="slider">How much of केरमेट do you want? </label>
-                <input type="range"  v-model="kermetFactor" min="20" max="140"  id="kermetRange">
-                <label for="allow Synonyms">Allow synonyms replacement for strikethrough text based upon your केरमेट factor:
-                <p></p> i am using words api free version : allows only 2500 queries.  4 words that will be striked through will have synonym replacement. others will remain as it is</label>
-                <input type="radio" name="synonym" value="yes" v-model="allowSynonyms" style="display:inline-block" > Yes
-                <input type="radio" name="synonym" value="no" v-model="allowSynonyms" style="display:inline-block" checked> No
-                <input type="submit" value="Generate">
-            </form>
-    </script>    
-    <div id="app">
 
-        <generator-form @submitted-elements="prepareContent" v-if="!removeForm"></generator-form>
-        <input type="button" value="Make it ready for print" v-if="!removeForm" @click="removeForm=true">
-        
-        
-        
-        
-        <div id="view-generated-content" v-html="renderables">
+    <script type="text/x-template" id="formPart">
+
+            <form class="card-form form-horizontal" @submit.prevent="generate">
+                <div class="form-group">
+                <label for="inputText">Paste here</label>
+                <textarea class="inputPart form-control" v-model="content" style="width:100%;height:4in"></textarea>
+                </div>
+                <div class="form-group">
+                <label for="font size Selection">select required font size [note: in pixels]</label>
+                <input type="number" class="form-control" min="20" v-model="fontSize">
+                </div>
+                <div class="form-group">
+                <label for="show Indentation">show indentation</label>
+                <input type="radio"  name="indent" value="violet" v-model="showIndent" style="display:inline-block" > Yes
+                <input type="radio"  name="indent" value="white" v-model="showIndent" style="display:inline-block" checked> No
+                </div>
+                <div class="form-group">
+                <label for="slider">How much of Indentation do you want? </label>
+                <input type="range"   class="form-control" v-model="kermetFactor" min="20" max="140"  id="kermetRange">
+                </div>
+                <div class="form-group">
+                    <label for="slider">How much of text flying do you want? </label>
+                    <input type="range"   class="form-control" v-model="textFlyFactor" min="0" max="20"  id="kermetRange">
+                </div>
+                
+                <div class="form-group">
+                <label for="show Indentation">Split text and apply different font by </label>
+                <input type="radio"  name="textSplit" value="word" v-model="splitMethod" style="display:inline-block" > Word
+                <input type="radio"  name="textSplit" value="alphabet" v-model="splitMethod" style="display:inline-block" checked> alphabet
+                </div>
+                
+                <div v-show="splitMethod=='word'" class="form-group">
+                <label for="allow Synonyms" >Allow random StrikeThrough</label>
+                <input type="radio"  name="synonym" value="yes" v-model="allowStrikeThrough" > Yes
+                <input type="radio"  name="synonym" value="no" v-model="allowStrikeThrough" checked> No 
+                <div class="form-group" v-show="allowStrikeThrough=='yes'">
+                    <label for="font size Selection">How Many words do you want to get randomly striked?</label>
+                    <input type="number" class="form-control" min="0" v-model="totalWordsToStrikeThrough">
+                </div>
+                </div>
             
+                
+                <input type="submit" class="form-control" value="Generate">
+                <hr/>
+                <input type="button" class="form-control" value="Print" onclick="window.print()">
+                
+            </form>
+    </script>
+    <div id="app">
+        
+           
+       
+        <div v-if="!removeForm">
+            <center>
+                <h1>Text To HandWriting</h1>
+                <h2>@Ashish_Thapa</h2>
+            </center>
+        </div>
+        <generator-form @submitted-elements="prepareContent"></generator-form>
+        
+
+
+
+
+        <div id="section-to-print" v-html="renderables">
+
         </div>
     </div>
 
 </body>
+
 </html>

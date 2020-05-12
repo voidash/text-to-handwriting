@@ -4,10 +4,12 @@ Vue.component("generator-form", {
         return {
             content: "",
             kermetFactor: 20,
-            textflyFactor: 0,
             fontSize: 40,
-            allowSynonyms: "no",
+            allowStrikeThrough: "no",
             showIndent: "white",
+            splitMethod: "alphabet",
+            textFlyFactor: 0,
+            totalWordsToStrikeThrough:0
         }
     },
     methods: {
@@ -15,10 +17,12 @@ Vue.component("generator-form", {
             const resource = {
                 content: this.content,
                 kermetFactor: this.kermetFactor,
-                textflyFactor: this.textflyFactor,
                 fontSize: this.fontSize,
-                allowSynonyms: this.allowSynonyms,
-                showIndent: this.showIndent
+                allowStrikeThrough: this.allowStrikeThrough,
+                showIndent: this.showIndent,
+                splitMethod: this.splitMethod,
+                textFlyFactor:this.textFlyFactor,
+                totalWordsToStrikeThrough:this.totalWordsToStrikeThrough
             }
             this.$emit("submitted-elements", resource);
         }
@@ -34,25 +38,30 @@ new Vue({
         return {
             resource: "",
             renderables: "",
-            removeForm: false
+            removeForm: false,
+            cap:30,
+            prevElement:0
         }
     },
     methods: {
         prepareContent(e) {
             this.resource = e;
+            this.prevElement=0;
+            this.cap=30;
             let skipPosition = this.regexMatch();
             let renderables = this.splitStrings(skipPosition);
-            this.kermet(this.resource.allowSynonyms, skipPosition);
             this.renderables = renderables.join("");
         },
 
         regexMatch() {
             let matchType = {
                 figureBox: /##\[([a-z]+)\s([0-9]+)\s([0-9]+)\]##/gm,
+                strikeThrough: /##\[([a-z]+)\s(.+)\]##/gm,
             }
             let skipPosition = [];
-            let a = 0, b = 0;
+
             for (var regex in matchType) {
+                let a = 0, b = 0;
                 let matchIterator = this.resource.content.matchAll(matchType[regex]);
 
                 let done = false;
@@ -63,7 +72,7 @@ new Vue({
                         break;
                     }
                     let pos = match.value.index - a + b;
-
+                    let divElem;
                     switch (match.value[1]) {
                         case "figure":
                             //replace matched part with actual div element
@@ -72,7 +81,13 @@ new Vue({
                             skipPosition.push([pos, pos + divElem.length]);
                             a += match.value[0].length;
                             b += divElem.length;
-
+                            break;
+                        case "strike":
+                            divElem = `<span style="font-family:ash2;font-size:${this.resource.fontSize}px;text-decoration:line-through;">${match.value[2]}</span>`
+                            this.resource.content = this.resource.content.replace(match.value[0], divElem);
+                            skipPosition.push([pos, pos + divElem.length]);
+                            a += match.value[0].length;
+                            b += divElem.length;
                             break;
                     }
 
@@ -85,86 +100,129 @@ new Vue({
             return Math.floor(Math.random() * 3 + 1);
         },
 
-        kermet(useSynonym, skipPosition) {
-            console.log(skipPosition);
-            //first make the strings splittable by omitting renderable content
-            let substringable = []
 
-            let bufferPos = 0;
-            if (skipPosition !== []) {
-                skipPosition.forEach((pos) => {
-                    //console.log(pos);
-                    substringable.push([bufferPos, pos[0]]);
-                    bufferPos = pos[1];
-                });
-                substringable.push([bufferPos, this.resource.content.length]);
-            } else {
-                substringable.push([0, this.resource.content.length]);
-            }
-            console.log(substringable);
-            let DOMOmittedText = "";
-            substringable.forEach((pos) => DOMOmittedText += this.resource.content.substring(pos[0], pos[1]));
-
-            console.log(DOMOmittedText);
-            //randomly select one word
-
-            if (useSynonym === "yes") {
-                //uses words api and and finds synonyms 
-                console.log("You selected yes ");
-            } else {
-
-            }
-
-        },
-        splitStrings(skipPosition, kermetResource) {
-            //splits the strings. can't use str.split(" ") function because , there is presence of html elements ready to be rendered.
-            //needs a counter to skip certain positions.
-
+        splitStrings(skipPosition) {
+            skipPosition = skipPosition.sort((a,b)=>{
+                if(a[0]==b[0]){
+                    return 0;
+                }else{
+                    return (a[0]<b[0]) ? -1 : 1;
+                }
+            });
             let renderableElements = [];
-
             let bufferString = this.resource.content;
-            let counter = 0;
+            let spanData;
+            if (this.resource.splitMethod == "word") {
+                //first make the strings splittable by omitting renderable content
+                let substringable = []
+
+                let bufferPos = 0;
+                if (skipPosition !== []) {
+                    skipPosition.forEach((pos) => {
+
+                        substringable.push([bufferPos, pos[0]]);
+                        substringable.push(bufferString.substring(pos[0], pos[1]));
+
+                        bufferPos = pos[1];
+                    });
+                    substringable.push([bufferPos, this.resource.content.length]);
+                } else {
+                    substringable.push([0, this.resource.content.length]);
+                }
 
 
-            let flag;
 
-            if (skipPosition.length === 0) {
-                flag = true;
-            } else {
-                flag = false;
-            }
+                let wordCount = this.resource.totalWordsToStrikeThrough;
 
-            for (let i = 0; i < bufferString.length; i++) {
+                substringable.forEach((pos) => {
+                    let DOMOmittedTextSpan = [];
+                    if (typeof pos == "object") {
+                        DOMOmittedTextSpan = this.resource.content.substring(pos[0], pos[1]).split(" ");
+                        randomNum = new Set();
 
-                if (flag == false) {
-                    if (skipPosition[counter][0] == i) {
-                        renderableElements.push(bufferString.substring(skipPosition[counter][0], skipPosition[counter][1]));
-                        i = skipPosition[counter][1];
-                        counter++;
-                        if (counter == skipPosition.length) {
-                            flag = true;
+                        for (let j = 0; j <= wordCount; j++) {
+                            randomNum.add(Math.floor(Math.random() * DOMOmittedTextSpan.length));
+                        }
+
+                        //selects span
+
+
+                        for (let i in DOMOmittedTextSpan) {
+                            let span = DOMOmittedTextSpan[i];
+                            let [x, y] = this.spanGeneration(i * 7, span);
+                            if (this.resource.allowStrikeThrough == "yes") {
+                                if (randomNum.has(parseInt(i)) === true) {
+
+                                    x = x.replace(/font-family:ash[0-9];font-size:[0-9]{1,}px;/gm, `font-family:ash3;text-decoration:line-through;font-size:${this.resource.fontSize}px;`);
+                                }
+                            }
+
+                            renderableElements.push(x);
+                            renderableElements.push(`<span style="font-family:ash2;font-size:${this.resource.fontSize}px;">&nbsp;</span>`);
+                            if (y) {
+                                renderableElements.push(y);
+                            }
+                        }
+                    } else {
+                        renderableElements.push(pos);
+                    }
+
+                });
+
+
+
+            } else if (this.resource.splitMethod == "alphabet") {
+                
+                //splits the strings. can't use str.split(" ") function because , there is presence of html elements ready to be rendered.
+                //needs a counter to skip certain positions.
+                //fonts change on words or alphabet
+                console.log(bufferString);
+                console.table(skipPosition);
+                let counter = 0;
+                let flag;
+                if (skipPosition.length === 0) {
+                    flag = true;
+                } else {
+                    flag = false;
+                }
+
+                for (let i = 0; i < bufferString.length; i++) {
+                    
+                    if (flag == false) {
+                        if (skipPosition[counter][0] == i) {
+                            renderableElements.push(bufferString.substring(skipPosition[counter][0], skipPosition[counter][1]));
+                            i = skipPosition[counter][1];
+                            counter++;
+                            if (counter == skipPosition.length) {
+                                flag = true;
+                            }
                         }
                     }
+
+                    let divElem;
+                    if (bufferString[i]) {
+                        [spanData, divElem] = this.spanGeneration(i, bufferString[i]);
+                        renderableElements.push(spanData);
+                        if (divElem) {
+                            renderableElements.push(divElem);
+                        }
+                    }
+                    //this.resource.content = this.resource.content.replace(bufferString[i],``)
                 }
 
-                //for counting enter and addding a paragraph break if found so.
-                if (bufferString[i] == '\n') {
-                    renderableElements.push(`<p></p>`);
-                   
-                } 
 
-                //kermet controls indentation errors and no of text to cut
-
-                //for bad indentation
-                if (i % (280 - (this.resource.kermetFactor * 2) - 20) == 0) {
-                    renderableElements.push([`<div style="position: relative;float:left;width:20px;height:${this.resource.fontSize}px;background-color:${this.resource.showIndent}"></div>`]);
-                    spanData=`<span style="font-family:ash${this.generateRand()};font-size:${this.resource.fontSize}px;position:relative;'">${bufferString[i]}</span>`;
-                } else {
-                    spanData=`<span style="font-family:ash${this.generateRand()};font-size:${this.resource.fontSize}px;">${bufferString[i]}</span>`;
-                }
-
-                //use different font for punctuation
-                switch(bufferString[i]){
+            }
+            
+            return renderableElements;
+        },
+        spanGeneration(pos, str) {
+            
+            
+            //checking for punctuations and replacing it with different font
+            for (let i = 0; i < str.length; i++) {
+                console.log(i);
+                let strAlphabet = str[i];
+                switch (strAlphabet) {
                     case "{":
                     case "}":
                     case "(":
@@ -177,7 +235,7 @@ new Vue({
                     case "[":
                     case "*":
                     case ":":
-                    case "\"":
+                    case '"':
                     case "'":
                     case "|":
                     case "/":
@@ -190,16 +248,56 @@ new Vue({
                     case "-":
                     case "$":
                     case "^":
-                    case"\`":
-                    case"~":
-                        spanData = spanData.replace(/ash[0-9]/gm,"punctuationAshish");
+                    case "\`":
+                    case "~":
+                        let punctuationSpan = `<span style="font-family:punctuationAshish;font-size:${this.resource.fontSize}px;position:relative;">${strAlphabet}</span>`;
+                        str = str.substring(0,i)+punctuationSpan+str.substring(i+1,str.length);
+                        i += punctuationSpan.length-1;
+                        break;
+                        
+                    case '\n':
+                        let enter = `<p></p>`;
+                        str = str.substring(0,i)+enter+str.substring(i+1,str.length);
+                        i += enter.length-1;
+                        break;
                 }
-                renderableElements.push(spanData);
-                //this.resource.content = this.resource.content.replace(bufferString[i],``)
             }
 
-            return renderableElements;
-        }
+            let spanData = [];
+            if (pos % (280 - (this.resource.kermetFactor * 2) - 20) == 0) {
+                spanData.push(`<span style="font-family:ash${this.generateRand()};font-size:${this.resource.fontSize}px;position:relative;top:${this.randomTextFly(Math.floor(Math.random()*this.resource.textFlyFactor))}px;">${str}</span>`);
+                spanData.push(`<div style="position: relative;float:left;width:20px;height:${this.resource.fontSize}px;background-color:${this.resource.showIndent}"></div>`);
+
+            } else {
+                spanData.push(`<span style="font-family:ash${this.generateRand()};font-size:${this.resource.fontSize}px;position:relative;top:${this.randomTextFly(Math.floor(Math.random()*this.resource.textFlyFactor))}px;">${str}</span>`);
+            }
+            return spanData;
+        },
+        randomTextFly(maxData){
+          
+          if(this.prevElement==0){
+            this.cap=30;
+          }else if(this.prevElement==30){
+            this.cap=0;
+          }
+          if(maxData>this.prevElement && this.cap > 0){
+            this.prevElement+=maxData;
+            return this.prevElement;
+          }else if(maxData<this.prevElement && this.cap > 0){
+            this.prevElement-=maxData;
+            return this.prevElement;
+          }else if(maxData>this.prevElement && this.cap == 0){
+            this.prevElement-=maxData;
+            return this.prevElement;
+          }
+          else if(maxData<this.prevElement && this.cap == 0){
+            this.prevElement+=maxData;
+            return this.prevElement;
+          }
+              
+          
+
+        },
 
     }
 });

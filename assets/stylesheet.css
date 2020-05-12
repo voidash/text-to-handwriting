@@ -1,22 +1,36 @@
 /* app specific css */
+.card-form{
+    width:50%;
+    position: relative;
+    margin:auto;
+    left:0;
+    right:0;
+
+}
 .card-form > *{
     display: block;
+    
 }
 
-#view-generated-content{
-    display:block;
-    position: relative;
-    width:7in;
+/* Printing */
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #section-to-print,
+    #section-to-print * {
+        visibility: visible;
+    }
+
+    #section-to-print {
+        position: absolute;
+        left: 30px;
+        top: 30px;
+        right: 30px;
+    }
 }
-
-
-
-
-/* page specification for printing */
-@page{
-    size: 7in 9.25in;
-}
-
 
 
 
