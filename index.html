@@ -15,13 +15,18 @@
         <script type="text/x-template" id="formPart">  
             <form class="card-form" @submit.prevent="generate">
                 <label for="inputText">Paste here</label>
-                <textarea class="inputPart" v-model="content"></textarea>
-                Remember font size
+                <textarea class="inputPart" v-model="content" style="width:7in;height:4in"></textarea>
+                <label for="font size Selection">select required font size [note: in pixels]</label>
+                <input type="number"  min="20" v-model="fontSize">
+                <label for="show Indentation">show indentation</label>
+                <input type="radio" name="indent" value="violet" v-model="showIndent" style="display:inline-block" > Yes
+                <input type="radio" name="indent" value="white" v-model="showIndent" style="display:inline-block" checked> No
                 <label for="slider">How much of केरमेट do you want? </label>
-                <input type="range"  v-model="kermetFactor" min="1" max="100"  id="kermetRange">
-                <label for="slider">Do you want your text to fly? </label>
-                <input type="range"  v-model="textflyFactor" min="0" max="100"  id="kermetRange">
-                
+                <input type="range"  v-model="kermetFactor" min="20" max="140"  id="kermetRange">
+                <label for="allow Synonyms">Allow synonyms replacement for strikethrough text based upon your केरमेट factor:
+                <p></p> i am using words api free version : allows only 2500 queries.  4 words that will be striked through will have synonym replacement. others will remain as it is</label>
+                <input type="radio" name="synonym" value="yes" v-model="allowSynonyms" style="display:inline-block" > Yes
+                <input type="radio" name="synonym" value="no" v-model="allowSynonyms" style="display:inline-block" checked> No
                 <input type="submit" value="Generate">
             </form>
     </script>    
@@ -29,7 +34,13 @@
 
         <generator-form @submitted-elements="prepareContent" v-if="!removeForm"></generator-form>
         <input type="button" value="Make it ready for print" v-if="!removeForm" @click="removeForm=true">
-        <div v-html="renderables"></div>
+        
+        
+        
+        
+        <div id="view-generated-content" v-html="renderables">
+            
+        </div>
     </div>
 
 </body>

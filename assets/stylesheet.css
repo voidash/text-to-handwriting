@@ -4,6 +4,8 @@
 }
 
 #view-generated-content{
+    display:block;
+    position: relative;
     width:7in;
 }
 
@@ -28,8 +30,14 @@
     font-style: normal;
 
 }
+@font-face {
+    font-family: 'punctuationAshish';
+    src: url('./fonts/punctuationashish-regular-webfont.woff2') format('woff2'),
+         url('./fonts/punctuationashish-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
 
-
+}
 
 
 @font-face {
